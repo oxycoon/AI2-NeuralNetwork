@@ -15,16 +15,17 @@ The data can be downloaded from the Tiny Mesh cloud.
 The student must define its own training and test method. Several modes should be included. The method chosen must involve controlled experiments and monitoring of actions in the room where the sensor is mounted.  To create a training and test set there must be ample empiric material gathered in the form of time series. Time series must be tagged or aligned chronologically with the obsrvations made in the room. Such tags would typically be “room not in use”, “room used by one person”, “room used by two persons” etc. This suggests a controlled method of observation that must be combined with the sensor samples gathered.  The type and form of such observations will demand space in the input vector. 
 
 The NN model should be able to classify the use of the room and yield output on the form:
-“Room not in use”
-“Room used by one person only”
-“Room used by at least one person”
-“Room used by at least two persons”
-“Room used by at least five persons”
-“Room used by a full class”
+<li>“Room not in use”</li>
+<li>“Room used by one person only”</li>
+<li>“Room used by at least one person”</li>
+<li>“Room used by at least two persons”</li>
+<li>“Room used by at least five persons”</li>
+<li>“Room used by a full class”</li>
+
 Other ancillary modes could be added i.e. 
-“Indoor climate is poor”
-“Window is open”
-“Window is closed”
+<li>“Indoor climate is poor”</li>
+<li>“Window is open”</li>
+<li>“Window is closed”</li>
 
 An additional feature with the NN would be to predict the use of and the number of people being present on a given hour during the week.
 
