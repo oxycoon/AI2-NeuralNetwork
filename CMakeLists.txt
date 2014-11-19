@@ -1,4 +1,4 @@
-project(KMeans)
+project(NeuralNetwork)
 cmake_minimum_required(VERSION 2.8)
 
 find_package( Boost 1.40 COMPONENTS program_options REQUIRED)
