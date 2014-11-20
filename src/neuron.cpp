@@ -3,3 +3,8 @@
 Neuron::Neuron()
 {
 }
+
+void Neuron::setValue(double val)
+{
+    _value = val;
+}

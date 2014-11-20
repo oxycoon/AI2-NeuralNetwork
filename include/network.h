@@ -10,21 +10,28 @@
 class Network
 {
 public:
-    Network();
+    Network(int in, int hidden, int out);
+    ~Network();
 
     void resetNetwork();
 
 
+
 private:
-    std::vector<Neuron*> _input;
-    std::vector<Neuron*> _hidden;
-    std::vector<Neuron*> _output;
+    int _countInput, _countHidden, _countOutput;
+
+    Neuron* _input;
+    Neuron* _hidden;
+    Neuron* _output;
+
+
 
     double LEARNING_RATE = 0.001;
     double TARGET_ACCURACY = 90.0;
     double MOMENTUM = 0.9;
     int MAX_EPOCHS = 1000;
 
+    void initNeurons(int in, int hidden, int out);
     void initWeights();
 
 };

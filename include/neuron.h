@@ -8,8 +8,13 @@ class Neuron
 public:
     Neuron();
 
+    void setValue(double val);
+
 private:
-    std::vector<Neuron*> _connections;
+    Neuron* _connections;
+
+    double _value;
+    double* _weights;
 };
 
 #endif // NEURON_H

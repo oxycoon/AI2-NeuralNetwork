@@ -36,3 +36,8 @@ void Network::initNeurons(int in, int hidden, int out)
     for(int i = 0; i < out; i++)
         _output[i].setValue(0.0);
 }
+
+void Network::initWeights()
+{
+    
+}
