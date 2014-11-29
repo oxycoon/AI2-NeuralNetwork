@@ -5,13 +5,23 @@
 
 #include <vector>
 
-
+#define LEARNING_RATE 0.001
+#define MOMENTUM 0.9
+#define MAX_EPOCHS 1500
+#define TARGET_ACCURACY 90
 
 class Network
 {
 public:
     Network(int in, int hidden, int out);
     ~Network();
+
+    void setLearningParameters(double learningRate, double momentum);
+    void setMaxEpochs(unsigned int max);
+    void setTargetAccuracy(double target);
+
+    void useBatchLearning();
+    void useStochasticLearning();
 
     void resetNetwork();
 
@@ -24,15 +34,29 @@ private:
     Neuron* _hidden;
     Neuron* _output;
 
+    double *_hiddenErrorGradient;
+    double *_outputErrorGradient;
 
+    unsigned int _epoch;
+    unsigned int _maxEpochs;
 
-    double LEARNING_RATE = 0.001;
-    double TARGET_ACCURACY = 90.0;
-    double MOMENTUM = 0.9;
-    int MAX_EPOCHS = 1000;
+    double _targetAccuracy;
+    double _learningRate;
+    double _momentum;
 
-    void initNeurons(int in, int hidden, int out);
-    void initWeights();
+    double _trainingSetAccuracy;
+    double _validationSetAccuracy;
+    double _generalizationSetAccuracy;
+    double _traningSetError;
+    double _validationSetError;
+    double _generalizationSetError;
+
+    bool _useBatch;
+
+    void setupNeurons();
+    void setupWeights();
+    void setupDeltas();
+    void setupErrorGradients();
 
 };
 
