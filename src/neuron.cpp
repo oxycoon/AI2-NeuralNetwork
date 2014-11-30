@@ -6,23 +6,57 @@ Neuron::Neuron()
 
 Neuron::~Neuron()
 {
-    /*delete[] _weights;
-    delete[] _deltas;*/
+    _deltaCount = 0;
+    _weightCount = 0;
 }
 
+/**
+ * @brief Neuron::setValue
+ * @param val
+ *
+ *  Sets a new value for the node
+ */
 void Neuron::setValue(double val)
 {
     _value = val;
 }
 
-void Neuron::setWeight(int index, double weight)
+/**
+ * @brief Neuron::setWeight
+ * @param index Item index
+ * @param weight New weight
+ * @return Returns true if successful, returns false if index is out of scope.
+ *
+ *  Sets the weight at index.
+ */
+bool Neuron::setWeight(unsigned int index, double weight)
 {
-    _weights[index] = weight;
+    if(index < _weightCount)
+    {
+        _weights[index] = weight;
+        return true;
+    }
+    else
+        return false;
 }
 
-void Neuron::setDelta(int index, double delta)
+/**
+ * @brief Neuron::setDelta
+ * @param index Item index
+ * @param delta New delta
+ * @return Returns true if successful, returns false if index is out of scope.
+ *
+ *  Sets the weight at index
+ */
+bool Neuron::setDelta(unsigned int index, double delta)
 {
-    _deltas[index] = delta;
+    if(index < _deltaCount)
+    {
+        _deltas[index] = delta;
+        return true;
+    }
+    else
+        return false;
 }
 
 double *Neuron::getWeights() const
@@ -30,9 +64,17 @@ double *Neuron::getWeights() const
     return _weights;
 }
 
-double Neuron::getWeight(int index) const
+/**
+ * @brief Neuron::getWeight
+ * @param index
+ * @return Weight at index or 0 if the index is out of scope
+ */
+double Neuron::getWeight(unsigned int index) const
 {
-    return _weights[index];
+    if(index < _weightCount)
+        return _weights[index];
+    else
+        return 0.0;
 }
 
 double *Neuron::getDeltas() const
@@ -40,9 +82,12 @@ double *Neuron::getDeltas() const
     return _deltas;
 }
 
-double Neuron::getDelta(int index) const
+double Neuron::getDelta(unsigned int index) const
 {
-    return _deltas[index];
+    if(index < _deltaCount)
+        return _deltas[index];
+    else
+        return 0.0;
 }
 
 double Neuron::getValue() const
@@ -65,9 +110,26 @@ void Neuron::addToValue(double val)
     _value += val;
 }
 
-void Neuron::addToDelta(int index, double val)
+bool Neuron::addToDelta(unsigned int index, double val)
 {
-    _deltas[index] += val;
+    if(index < _deltaCount)
+    {
+        _deltas[index] += val;
+        return true;
+    }
+    else
+        return false;
+}
+
+bool Neuron::addToWeight(unsigned int index, double val)
+{
+    if(index < _weightCount)
+    {
+        _weights[index] += val;
+        return true;
+    }
+    else
+        return false;
 }
 
 void Neuron::initializeWeights(int weights)

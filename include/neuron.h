@@ -10,30 +10,61 @@ public:
     ~Neuron();
 
     void setValue(double val);
-    void setWeight(int index, double weight);
-    void setDelta(int index, double delta);
+    bool setWeight(unsigned int index, double weight);
+    bool setDelta(unsigned int index, double delta);
 
     double* getWeights() const;
-    double getWeight(int index) const;
+    double getWeight(unsigned int index) const;
     double* getDeltas() const;
-    double getDelta(int index) const;
+    double getDelta(unsigned int index) const;
     double getValue() const;
 
     int getWeightCount() const;
     int getDeltaCount() const;
 
     void addToValue(double val);
-    void addToDelta(int index, double val);
+    bool addToDelta(unsigned int index, double val);
+    bool addToWeight(unsigned int index, double val);
 
     void initializeWeights(int weights);
     void initializeDeltas(int deltas);
 
 private:
+    /**
+     * @brief _value
+     *
+     *  The value of this node in the network.
+     */
     double _value;
+
+    /**
+     * @brief _weights
+     *
+     *  Input neurons hold weights towards the hidden layer.
+     *  Hidden neurons hold weights towards the output layer.
+     */
     double* _weights;
+
+    /**
+     * @brief _deltas
+     *
+     *  Input neurons hold deltas towards the hidden layer.
+     *  Hidden neurons hold deltas towards the output layer.
+     */
     double* _deltas;
 
+    /**
+     * @brief _weightCount
+     *
+     *  Number of weights in this neuron.
+     */
     int _weightCount;
+
+    /**
+     * @brief _deltaCount
+     *
+     *  Number of deltas in this neuron.
+     */
     int _deltaCount;
 };
 

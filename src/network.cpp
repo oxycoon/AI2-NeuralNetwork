@@ -144,7 +144,32 @@ void Network::runTrainingEpoch(std::vector<DataEntry *> set)
     {
         feedForward(set[i]->_pattern);
         feedBackward(set[i]->_target);
+
+        bool patternCorrect = true;
+
+        for(int j = 0; j < _countOutput; j++)
+        {
+            //Checks if the output value matches the target
+            if(roundOutput(_output[j].getValue() ) != set[i]->_target[j] )
+                patternCorrect = false;
+
+            //Calculates mean square error
+            meanSquaredError += std::pow((_output[j].getValue() - set[i]->_target[j]), 2);
+        }
+
+        //If pattern does not match, add to sum of incorrect.
+        if(!patternCorrect)
+            incorrectPatterns++;
     }
+    //Updates weights here if batch learning is used.
+    if(_useBatch)
+    {
+        updateWeights();
+    }
+
+    //update training accuracy and MSE
+    _trainingSetAccuracy = 100 - (incorrectPatterns / set.size() * 100);
+    _trainingSetError = meanSquaredError / (_countOutput * set.size());
 }
 
 void Network::feedForward(double* input)
@@ -205,7 +230,63 @@ void Network::feedBackward(double* targets)
     //Modify deltas between input and hidden
     for(int i = 0; i < _countHidden; i++)
     {
+        _hiddenErrorGradient[i] = calculateHiddenErrorGradient(i);
 
+        for(int j = 0; j <= _countInput; j++)
+        {
+            if(!_useBatch)
+            {
+                _input[j].setDelta(i, _learningRate * _input[i].getValue() * _hiddenErrorGradient[i] + _momentum * _input[i].getDelta(i));
+            }
+            else
+            {
+                _input[j].addToDelta(i, _learningRate * _input[j].getValue() * _hiddenErrorGradient[i]);
+            }
+        }
+    }
+
+    //If using stochastic learning, update weights now
+    if(!_useBatch)
+    {
+        updateWeights();
+    }
+}
+
+/**
+ * @brief Network::updateWeights
+ *
+ *  Updates thje weights of the network.
+ */
+void Network::updateWeights()
+{
+    //Input to hidden weights
+    for(int i = 0; i <= _countInput; i++)
+    {
+        for(int j = 0; j < _countHidden; i++)
+        {
+            _input[i].addToWeight(j, _input[i].getDelta(j));
+
+            //Clear delta if batch is being used
+            if(_useBatch)
+            {
+                _input[i].setDelta(j, 0.0);
+            }
+        }
+    }
+
+    //Hidden to output weights
+    for(int i = 0; i <= _countHidden; i++)
+    {
+        for(int j = 0; j < _countOutput; i++)
+        {
+            _hidden[i].addToWeight(j, _hidden[i].getDelta(j));
+
+            //Clear delta if batch is being used
+            if(_useBatch)
+            {
+                _hidden[i].setDelta(j, 0.0);
+            }
+        }
     }
 }
 
@@ -246,4 +327,19 @@ double Network::calculateHiddenErrorGradient(int index)
     }
 
     return _hidden[index].getValue() * (1 - _hidden[index].getValue()) * weightSum;
+}
+
+/**
+ * @brief Network::roundOutput
+ * @param output
+ * @return
+ *
+ *  Rounds the output for a boolean result
+ */
+int Network::roundOutput(double output)
+{
+    if(output < 0.1) return 0;
+    else if(output > 0.9) return 1;
+    else return -1;
+
 }

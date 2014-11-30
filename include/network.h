@@ -53,7 +53,7 @@ private:
     double _trainingSetAccuracy;
     double _validationSetAccuracy;
     double _generalizationSetAccuracy;
-    double _traningSetError;
+    double _trainingSetError;
     double _validationSetError;
     double _generalizationSetError;
 
@@ -74,6 +74,8 @@ private:
     double activationFunction(double x);
     double calculateOutputErrorGradient(double target, double actual);
     double calculateHiddenErrorGradient(int index);
+
+    int roundOutput(double output);
 };
 
 #endif // NETWORK_H
