@@ -29,7 +29,7 @@ public:
 
     void resetNetwork();
 
-    void runTraining(std::vector<DataEntry*> trainingSet, std::vector<DataEntry*> generalizedSet, std::vector<DataEntry*> validationSet);
+    void runTraining(const std::vector<DataEntry*> &trainingSet, const std::vector<DataEntry*> &generalizedSet, const std::vector<DataEntry*> &validationSet);
 
 
 
@@ -66,7 +66,8 @@ private:
 
     void initWeights();
 
-    void runTrainingEpoch(std::vector<DataEntry*> set);
+    //Epoch training related functions
+    void runTrainingEpoch(const std::vector<DataEntry*> &set);
     void feedForward(double* inputs);
     void feedBackward(double* targets);
     void updateWeights();
@@ -76,6 +77,11 @@ private:
     double calculateHiddenErrorGradient(int index);
 
     int roundOutput(double output);
+
+    //Generalized sets related functions
+    double getSetAccuracy(const std::vector<DataEntry*> &set);
+    double getSetMSE(const std::vector<DataEntry*> &set);
+
 };
 
 #endif // NETWORK_H

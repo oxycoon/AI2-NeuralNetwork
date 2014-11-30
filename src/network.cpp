@@ -52,7 +52,7 @@ void Network::resetNetwork()
 
 }
 
-void Network::runTraining(std::vector<DataEntry *> trainingSet, std::vector<DataEntry *> generalizedSet, std::vector<DataEntry *> validationSet)
+void Network::runTraining(const std::vector<DataEntry*> &trainingSet, const std::vector<DataEntry*> &generalizedSet, const std::vector<DataEntry*> &validationSet)
 {
     std::cout << " Neural network training starting " << std::endl
               << "======================================================================" << std::endl
@@ -68,7 +68,12 @@ void Network::runTraining(std::vector<DataEntry *> trainingSet, std::vector<Data
         double oldTA = _trainingSetAccuracy;
         double oldGA = _generalizationSetAccuracy;
 
+        //Train the network with the training set
         runTrainingEpoch(trainingSet);
+
+        //Gets the generalized set accuracy and MSE
+        _generalizationSetAccuracy = getSetAccuracy(generalizedSet);
+        _generalizationSetError = getSetMSE(generalizedSet);
 
     }
 }
@@ -135,7 +140,13 @@ void Network::initWeights()
 
 }
 
-void Network::runTrainingEpoch(std::vector<DataEntry *> set)
+/**
+ * @brief Network::runTrainingEpoch
+ * @param set
+ *
+ *  Runs a training epoch on the given set.
+ */
+void Network::runTrainingEpoch(const std::vector<DataEntry*> &set)
 {
     double incorrectPatterns = 0;
     double meanSquaredError = 0;
@@ -172,6 +183,12 @@ void Network::runTrainingEpoch(std::vector<DataEntry *> set)
     _trainingSetError = meanSquaredError / (_countOutput * set.size());
 }
 
+/**
+ * @brief Network::feedForward
+ * @param input
+ *
+ *  Feeds the input forward for an output
+ */
 void Network::feedForward(double* input)
 {
     //Sets input neurons to input values
@@ -208,6 +225,12 @@ void Network::feedForward(double* input)
 
 }
 
+/**
+ * @brief Network::feedBackward
+ * @param targets
+ *
+ *  Feeds backwards, back probagates, adjust deltas and calculate the error gradients.
+ */
 void Network::feedBackward(double* targets)
 {
     //Modify deltas between hidden and output
@@ -341,5 +364,56 @@ int Network::roundOutput(double output)
     if(output < 0.1) return 0;
     else if(output > 0.9) return 1;
     else return -1;
+}
 
+/**
+ * @brief Network::getSetAccuracy
+ * @param set
+ * @return
+ *
+ *  Calculates the accuracy of the given set.
+ */
+double Network::getSetAccuracy(const std::vector<DataEntry *> &set)
+{
+    double errors = 0;
+
+    for(int i = 0; i < (int)set.size(); i++)
+    {
+        feedForward(set[i]->_pattern);
+
+        bool isCorrect = true;
+
+        for(int j = 0; j < _countOutput; j++)
+        {
+            if(roundOutput( _output[j].getValue() ) != set[i]->_target[j] )
+                isCorrect = false;
+        }
+        if(!isCorrect)
+            errors++;
+    }
+    return 100.0 - (errors/set.size() * 100.0);
+}
+
+/**
+ * @brief Network::getSetMSE
+ * @param set
+ * @return
+ *
+ *  Calculates the set's Mean Squared Error
+ */
+double Network::getSetMSE(const std::vector<DataEntry *> &set)
+{
+    double mse = 0;
+
+    for(int i = 0; i < (int)set.size(); i++)
+    {
+        feedForward(set[i]->_pattern);
+
+        for(int j = 0; j < _countOutput; j++)
+        {
+            mse += std::pow( (_output[j].getValue() - set[i]->_target[j]), 2 );
+        }
+    }
+
+    return mse / ( _countOutput * set.size() );
 }
