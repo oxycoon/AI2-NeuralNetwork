@@ -11,6 +11,9 @@
 #define MAX_EPOCHS 1500
 #define TARGET_ACCURACY 90
 
+
+//Inspired by https://takinginitiative.wordpress.com/2008/04/23/basic-neural-network-tutorial-c-implementation-and-source-code/
+
 class Network
 {
 public:
