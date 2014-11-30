@@ -22,6 +22,9 @@ public:
     int getWeightCount() const;
     int getDeltaCount() const;
 
+    void addToValue(double val);
+    void addToDelta(int index, double val);
+
     void initializeWeights(int weights);
     void initializeDeltas(int deltas);
 

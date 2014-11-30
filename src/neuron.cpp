@@ -60,6 +60,16 @@ int Neuron::getDeltaCount() const
     return _deltaCount;
 }
 
+void Neuron::addToValue(double val)
+{
+    _value += val;
+}
+
+void Neuron::addToDelta(int index, double val)
+{
+    _deltas[index] += val;
+}
+
 void Neuron::initializeWeights(int weights)
 {
     _weightCount = weights;

@@ -2,6 +2,7 @@
 #define NETWORK_H
 
 #include "neuron.h"
+#include "dataentry.h"
 
 #include <vector>
 
@@ -24,6 +25,8 @@ public:
     void useStochasticLearning();
 
     void resetNetwork();
+
+    void runTraining(std::vector<DataEntry*> trainingSet, std::vector<DataEntry*> generalizedSet, std::vector<DataEntry*> validationSet);
 
 
 
@@ -58,6 +61,16 @@ private:
     void setupDeltas();
     void setupErrorGradients();
 
+    void initWeights();
+
+    void runTrainingEpoch(std::vector<DataEntry*> set);
+    void feedForward(double* inputs);
+    void feedBackward(double* targets);
+    void updateWeights();
+
+    double activationFunction(double x);
+    double calculateOutputErrorGradient(double target, double actual);
+    double calculateHiddenErrorGradient(int index);
 };
 
 #endif // NETWORK_H

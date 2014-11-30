@@ -7,6 +7,6 @@ DataEntry::DataEntry(double *p, double *t): _pattern(p), _target(t)
 
 DataEntry::~DataEntry()
 {
-    delete[] pattern;
-    delete[] target;
+    delete[] _pattern;
+    delete[] _target;
 }
