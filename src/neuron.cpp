@@ -59,6 +59,12 @@ bool Neuron::setDelta(unsigned int index, double delta)
         return false;
 }
 
+/**
+ * @brief Neuron::getWeights
+ * @return Pointer to array of weights
+ *
+ *  Gets the array of weights
+ */
 double *Neuron::getWeights() const
 {
     return _weights;

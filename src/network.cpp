@@ -1,7 +1,12 @@
 #include "network.h"
 
 #include <cmath>
+#include <ctime>
 #include <iostream>
+
+//================================================
+//              Constructor/Destructor
+//================================================
 
 Network::Network(int in, int hidden, int out): _countInput(in), _countHidden(hidden), _countOutput(out)
 {
@@ -9,6 +14,14 @@ Network::Network(int in, int hidden, int out): _countInput(in), _countHidden(hid
     setupWeights();
     setupDeltas();
     setupErrorGradients();
+    initWeights();
+
+    _maxEpochs = MAX_EPOCHS;
+    _targetAccuracy = TARGET_ACCURACY;
+    _learningRate = LEARNING_RATE;
+    _momentum = MOMENTUM;
+
+    _useBatch = false;
 }
 
 Network::~Network()
@@ -20,6 +33,10 @@ Network::~Network()
     delete[] _hiddenErrorGradient;
     delete[] _outputErrorGradient;*/
 }
+
+//================================================
+//                  Setters
+//================================================
 
 void Network::setLearningParameters(double learningRate, double momentum)
 {
@@ -47,12 +64,29 @@ void Network::useStochasticLearning()
     _useBatch = false;
 }
 
+//================================================
+//                  Public functions
+//================================================
+
+/**
+ * @brief Network::resetNetwork
+ *
+ *  Resets the network's training.
+ */
 void Network::resetNetwork()
 {
-
+    initWeights();
 }
 
-void Network::runTraining(const std::vector<DataEntry*> &trainingSet, const std::vector<DataEntry*> &generalizedSet, const std::vector<DataEntry*> &validationSet)
+/**
+ * @brief Network::runTraining
+ * @param trainingSet
+ * @param testSet
+ * @param validationSet
+ *
+ *  Trains the network with the given training sets.
+ */
+void Network::runTraining(const std::vector<DataEntry*> &trainingSet, const std::vector<DataEntry*> &testSet, const std::vector<DataEntry*> &validationSet)
 {
     std::cout << " Neural network training starting " << std::endl
               << "======================================================================" << std::endl
@@ -63,20 +97,45 @@ void Network::runTraining(const std::vector<DataEntry*> &trainingSet, const std:
     _epoch = 0;
 
     //Runs training using training set for training and generalized set for testing
-    while((_trainingSetAccuracy < _targetAccuracy || _generalizationSetAccuracy < _targetAccuracy) && _epoch < _maxEpochs)
+    while((_trainingSetAccuracy < _targetAccuracy || _testingSetAccuracy < _targetAccuracy) && _epoch < _maxEpochs)
     {
-        double oldTA = _trainingSetAccuracy;
-        double oldGA = _generalizationSetAccuracy;
+        double oldTrA = _trainingSetAccuracy;
+        double oldTSA = _testingSetAccuracy;
+        double oldTSMSE = _testingSetError;
 
         //Train the network with the training set
         runTrainingEpoch(trainingSet);
 
         //Gets the generalized set accuracy and MSE
-        _generalizationSetAccuracy = getSetAccuracy(generalizedSet);
-        _generalizationSetError = getSetMSE(generalizedSet);
+        _testingSetAccuracy = getSetAccuracy(testSet);
+        _testingSetError = getSetMSE(testSet);
 
+        //Checks for changes in the training and generalization set's accuracy, prints if there's a change
+        if(std::ceil(oldTrA) != std::ceil(_trainingSetAccuracy) || std::ceil(oldTSA) != std::ceil(_testingSetAccuracy) )
+        {
+            std::cout << "Epoch: " << _epoch;
+            std::cout << " Training set accuracy: " << _trainingSetAccuracy << "%, MSE: " << _trainingSetError;
+            std::cout << " Generalized set accuracy: " << _testingSetAccuracy << "%, MSE: " << _testingSetError << std::endl;
+
+
+        }
+        //Increases epoch for next iteration.
+        _epoch++;
+
+        //Stops the training set if the generalization set's error starts increasing.
+        if(oldTSMSE < _testingSetError)
+            break;
     }
+
+    //Run validation set
+    _validationSetAccuracy = getSetAccuracy(validationSet);
+    _validationSetError = getSetMSE(validationSet);
+
 }
+
+//================================================
+//                  Initializers
+//================================================
 
 void Network::setupNeurons()
 {
@@ -135,10 +194,41 @@ void Network::setupErrorGradients()
     }
 }
 
+/**
+ * @brief Network::initWeights
+ *
+ *  Initializes weights with random values between -0.5 and 0.5, and deltas to 0.
+ */
 void Network::initWeights()
 {
+    srand( (unsigned int) std::time(0) );
 
+    //Weights and deltas between input and hidden layer
+    for(int i = 0; i <= _countInput; i++)
+    {
+        for(int j = 0; j < _countHidden; j++)
+        {
+            //Random weights
+            _input[i].setWeight(j, ( (double)std::rand() / (RAND_MAX + 1) - 0.5) ) ;
+            _input[i].setDelta(j, 0.0);
+        }
+    }
+
+    //Weights and deltas between hidden and output layer
+    for(int i = 0; i <= _countHidden; i++)
+    {
+        for(int j = 0; j < _countOutput; j++)
+        {
+            //Random weights
+            _hidden[i].setWeight(j, ( (double)std::rand() / (RAND_MAX + 1) - 0.5) ) ;
+            _hidden[i].setDelta(j, 0.0);
+        }
+    }
 }
+
+//================================================
+//            Epoch training functions
+//================================================
 
 /**
  * @brief Network::runTrainingEpoch
@@ -151,6 +241,7 @@ void Network::runTrainingEpoch(const std::vector<DataEntry*> &set)
     double incorrectPatterns = 0;
     double meanSquaredError = 0;
 
+    //Runs training for every pattern
     for(int i = 0; i < (int)set.size(); i++)
     {
         feedForward(set[i]->_pattern);
@@ -207,7 +298,7 @@ void Network::feedForward(double* input)
         {
             _hidden[i].addToValue(_input[i].getValue() * _input[j].getWeight(i));
         }
-        _hidden[i].setValue(activationFunction(_hidden[i].getValue() ) );
+        _hidden[i].setValue(activationFunction(_hidden[i].getValue()));
     }
 
     //Calculates the output layer
@@ -220,7 +311,7 @@ void Network::feedForward(double* input)
         {
             _output[i].addToValue(_hidden[i].getValue() * _hidden[j].getWeight(i));
         }
-        _output[i].setValue(activationFunction(_output[i].getValue() ) );
+        _output[i].setValue(activationFunction(_output[i].getValue()));
     }
 
 }
@@ -365,6 +456,10 @@ int Network::roundOutput(double output)
     else if(output > 0.9) return 1;
     else return -1;
 }
+
+//================================================
+//        Non training set related functions
+//================================================
 
 /**
  * @brief Network::getSetAccuracy

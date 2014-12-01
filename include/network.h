@@ -52,13 +52,14 @@ private:
 
     double _trainingSetAccuracy;
     double _validationSetAccuracy;
-    double _generalizationSetAccuracy;
+    double _testingSetAccuracy;
     double _trainingSetError;
     double _validationSetError;
-    double _generalizationSetError;
+    double _testingSetError;
 
     bool _useBatch;
 
+    //Initializers
     void setupNeurons();
     void setupWeights();
     void setupDeltas();
@@ -78,7 +79,7 @@ private:
 
     int roundOutput(double output);
 
-    //Generalized sets related functions
+    //Non training set related functions
     double getSetAccuracy(const std::vector<DataEntry*> &set);
     double getSetMSE(const std::vector<DataEntry*> &set);
 
