@@ -47,8 +47,9 @@ private:
 
     int _numberInput;
     int _numberOutput;
-
     int _numberDataSet;
+
+    int _trainingDataEnd;
 
     char* _separator;
 

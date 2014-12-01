@@ -31,7 +31,12 @@ void Neuron::setValue(double val)
  */
 bool Neuron::setWeight(unsigned int index, double weight)
 {
-    if(index < _weightCount)
+    if(_weightCount == 1)
+    {
+        _weights = &weight;
+        return true;
+    }
+    else if(index < _weightCount)
     {
         _weights[index] = weight;
         return true;
@@ -50,11 +55,19 @@ bool Neuron::setWeight(unsigned int index, double weight)
  */
 bool Neuron::setDelta(unsigned int index, double delta)
 {
+    //If there's only one delta, set to input
+    if(_deltaCount == 1)
+    {
+        _deltas = &delta;
+        return true;
+    }
+    //Else set delta at index to input
     if(index < _deltaCount)
     {
         _deltas[index] = delta;
         return true;
     }
+    //Else fail
     else
         return false;
 }
@@ -118,6 +131,11 @@ void Neuron::addToValue(double val)
 
 bool Neuron::addToDelta(unsigned int index, double val)
 {
+    /*if(_deltaCount == 1)
+    {
+        _deltas += val;
+        return true;
+    }*/
     if(index < _deltaCount)
     {
         _deltas[index] += val;
@@ -145,16 +163,25 @@ void Neuron::initializeWeights(int weights)
 
     for(int i = 0; i < weights; i++)
     {
-        _weights[i] = 0;
+        _weights[i] = 0.0;
     }
 }
 
 void Neuron::initializeDeltas(int deltas)
 {
     _deltaCount = deltas;
-    _deltas = new (double[_deltaCount]);
-    for(int i = 0; i < _deltaCount; i++)
+
+    if(_deltaCount == 1)
     {
-        _deltas[i] = 0;
+        double delta = 0.0;
+        _deltas = &delta;
+    }
+    else
+    {
+        _deltas = new (double[_deltaCount]);
+        for(int i = 0; i < _deltaCount; i++)
+        {
+            _deltas[i] = 0.0;
+        }
     }
 }

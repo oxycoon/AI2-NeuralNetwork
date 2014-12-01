@@ -86,6 +86,30 @@ bool CSVReader::readCSVFile(const char *path, int numberInput, int numberOutput,
                 readLine(line);
         }
 
+        //shuffles the given data
+        std::random_shuffle(_data.begin(), _data.end());
+
+        //splits data
+        _trainingDataEnd = (int) (0.6 * _data.size());
+        int testSize = (int)(ceil(0.2 * _data.size()));
+        int validSize = (int)(_data.size() - _trainingDataEnd - testSize);
+
+        //Create testing set
+        for(int i = _trainingDataEnd; i < _trainingDataEnd + testSize; i++)
+        {
+            _dataSet._testingSet.push_back(_data[i]);
+        }
+
+        //Create validation set
+        for(int i = _trainingDataEnd + testSize; i < _data.size(); i++)
+        {
+            _dataSet._validationSet.push_back(_data[i]);
+        }
+
+        std::cout << "File successfully read, patterns found: " << _data.size() << std::endl;
+
+        file.close();
+
         return true;
     }
     else
@@ -140,7 +164,7 @@ void CSVReader::readLine(const std::string &line)
     }
 
     //PRINT FOR DEBUGGING
-    std::cout << "pattern: ";
+    /*std::cout << "pattern: ";
     for (int i=0; i < _numberInput; i++)
     {
         std::cout << pattern[i] << ",";
@@ -151,7 +175,7 @@ void CSVReader::readLine(const std::string &line)
     {
         std::cout << target[i] << " ";
     }
-    std::cout << std::endl;
+    std::cout << std::endl;*/
 
 
     _data.push_back(new DataEntry(pattern, target));

@@ -22,6 +22,8 @@ Network::Network(int in, int hidden, int out): _countInput(in), _countHidden(hid
     _momentum = MOMENTUM;
 
     _useBatch = false;
+
+    std::cout << "Network ready for use!" << std::endl;
 }
 
 Network::~Network()
@@ -158,11 +160,11 @@ void Network::setupNeurons()
 
 void Network::setupWeights()
 {
-    for(int i = 0; i < _countHidden; i++)
+    for(int i = 0; i < _countInput; i++)
     {
         _input[i].initializeWeights(_countHidden);
     }
-    for(int i = 0; i < _countOutput; i++)
+    for(int i = 0; i < _countHidden; i++)
     {
         _hidden[i].initializeWeights(_countOutput);
     }
@@ -170,13 +172,13 @@ void Network::setupWeights()
 
 void Network::setupDeltas()
 {
+    for(int i = 0; i < _countInput; i++)
+    {
+        _input[i].initializeDeltas(_countHidden);
+    }
     for(int i = 0; i < _countHidden; i++)
     {
-        _input[i].initializeDeltas(_countHidden + 1);
-    }
-    for(int i = 0; i < _countOutput; i++)
-    {
-        _hidden[i].initializeDeltas(_countOutput + 1);
+        _hidden[i].initializeDeltas(_countOutput);
     }
 }
 
@@ -204,7 +206,7 @@ void Network::initWeights()
     srand( (unsigned int) std::time(0) );
 
     //Weights and deltas between input and hidden layer
-    for(int i = 0; i <= _countInput; i++)
+    for(int i = 0; i < _countInput; i++)
     {
         for(int j = 0; j < _countHidden; j++)
         {
@@ -215,7 +217,7 @@ void Network::initWeights()
     }
 
     //Weights and deltas between hidden and output layer
-    for(int i = 0; i <= _countHidden; i++)
+    for(int i = 0; i < _countHidden; i++)
     {
         for(int j = 0; j < _countOutput; j++)
         {
