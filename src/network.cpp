@@ -10,7 +10,7 @@
 
 Network::Network(int in, int hidden, int out): _countInput(in), _countHidden(hidden), _countOutput(out),
     _trainingSetAccuracy(0), _testingSetAccuracy(0), _validationSetAccuracy(0),
-    _trainingSetError(0), _testingSetError(0), _validationSetError(0), _epoch(0)
+    _trainingSetError(0), _testingSetError(100), _validationSetError(0), _epoch(0)
 {
     setupNeurons();
     setupWeights();
@@ -128,7 +128,7 @@ void Network::runTraining(const std::vector<DataEntry*> &trainingSet, const std:
 
         double oldTrA = _trainingSetAccuracy;
         double oldTSA = _testingSetAccuracy;
-        double oldTSMSE = _testingSetError;
+        //double oldTSMSE = _testingSetError;
 
         //Train the network with the training set
         runTrainingEpoch(trainingSet);
@@ -141,17 +141,15 @@ void Network::runTraining(const std::vector<DataEntry*> &trainingSet, const std:
         if(std::ceil(oldTrA) != std::ceil(_trainingSetAccuracy) || std::ceil(oldTSA) != std::ceil(_testingSetAccuracy) )
         {
             std::cout << "Epoch: " << _epoch;
-            std::cout << " Training set accuracy: " << _trainingSetAccuracy << "%, MSE: " << _trainingSetError;
-            std::cout << " Generalized set accuracy: " << _testingSetAccuracy << "%, MSE: " << _testingSetError << std::endl;
-
-
+            std::cout << " | Training set accuracy: " << _trainingSetAccuracy << "%, MSE: " << _trainingSetError;
+            std::cout << " | Generalized set accuracy: " << _testingSetAccuracy << "%, MSE: " << _testingSetError << std::endl;
         }
         //Increases epoch for next iteration.
         _epoch++;
 
         //Stops the training set if the generalization set's error starts increasing.
-        if(oldTSMSE < _testingSetError)
-            break;
+        /*if(oldTSMSE < _testingSetError)
+            break;*/
     }
 
     //Run validation set
@@ -333,10 +331,12 @@ void Network::feedForward(std::vector<double> input)
         //Resets value
         _hidden[i]->setValue(0.0);
 
+        //Calculate weighted sum of inputs, including bias neuron
         for(int j = 0; j <= _countInput; j++)
         {
             _hidden[i]->addToValue(_input[j]->getValue() * _input[j]->getWeight(i));
         }
+        //Set to sigmoid result
         _hidden[i]->setValue(activationFunction(_hidden[i]->getValue()));
     }
 
@@ -346,10 +346,12 @@ void Network::feedForward(std::vector<double> input)
         //Resets value
         _output[i]->setValue(0.0);
 
+        //Calculate weighted sum of inputs, including bias neuron
         for(int j = 0; j < _countHidden; j++)
         {
             _output[i]->addToValue(_hidden[j]->getValue() * _hidden[j]->getWeight(i));
         }
+        //Set to sigmoid result
         _output[i]->setValue(activationFunction(_output[i]->getValue()));
     }
 
@@ -372,7 +374,7 @@ void Network::feedBackward(std::vector<double> targets)
         {
             if(!_useBatch)
             {
-                _hidden[j]->setDelta(i, _learningRate * _hidden[i]->getValue() * _outputErrorGradient[i] + _momentum * _hidden[j]->getDelta(i));
+                _hidden[j]->setDelta(i, _learningRate * _hidden[j]->getValue() * _outputErrorGradient[i] + _momentum * _hidden[j]->getDelta(i));
             }
             else
             {
