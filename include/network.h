@@ -36,12 +36,12 @@ public:
 private:
     int _countInput, _countHidden, _countOutput;
 
-    Neuron* _input;
-    Neuron* _hidden;
-    Neuron* _output;
+    std::vector<Neuron*> _input;
+    std::vector<Neuron*>  _hidden;
+    std::vector<Neuron*>  _output;
 
-    double *_hiddenErrorGradient;
-    double *_outputErrorGradient;
+    std::vector<double>  _hiddenErrorGradient;
+    std::vector<double>  _outputErrorGradient;
 
     unsigned int _epoch;
     unsigned int _maxEpochs;
@@ -69,8 +69,8 @@ private:
 
     //Epoch training related functions
     void runTrainingEpoch(const std::vector<DataEntry*> &set);
-    void feedForward(double* inputs);
-    void feedBackward(double* targets);
+    void feedForward(std::vector<double> inputs);
+    void feedBackward(std::vector<double> targets);
     void updateWeights();
 
     double activationFunction(double x);

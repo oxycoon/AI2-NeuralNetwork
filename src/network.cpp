@@ -30,6 +30,27 @@ Network::Network(int in, int hidden, int out): _countInput(in), _countHidden(hid
 
 Network::~Network()
 {
+    for(auto it = _input.begin(); it != _input.end(); it++)
+    {
+        delete *it;
+    }
+    _input.clear();
+
+    for(auto it = _hidden.begin(); it != _hidden.end(); it++)
+    {
+        delete *it;
+    }
+    _hidden.clear();
+
+    for(auto it = _output.begin(); it != _output.end(); it++)
+    {
+        delete *it;
+    }
+    _output.clear();
+
+    _hiddenErrorGradient.clear();
+    _outputErrorGradient.clear();
+
     /*delete[] _hidden;
     delete[] _output;
     delete[] _input;
@@ -145,32 +166,33 @@ void Network::runTraining(const std::vector<DataEntry*> &trainingSet, const std:
 
 void Network::setupNeurons()
 {
-    _input = new Neuron[_countInput+1];
+    _input = std::vector<Neuron*>(_countInput + 1);
+    _hidden = std::vector<Neuron*>(_countHidden + 1);
+    _output = std::vector<Neuron*>(_countOutput + 1);
+
     for(int i = 0; i < _countInput; i++)
-        _input[i].setValue(0.0);
+        _input[i]->setValue(0.0);
 
-    _input[_countInput].setValue(-1.0);
+    _input[_countInput]->setValue(-1.0);
 
-    _hidden = new Neuron[_countHidden+1];
     for(int i = 0; i < _countHidden; i++)
-        _hidden[i].setValue(0.0);
+        _hidden[i]->setValue(0.0);
 
-    _hidden[_countHidden].setValue(-1.0);
+    _hidden[_countHidden]->setValue(-1.0);
 
-    _output = new Neuron[_countOutput+1];
     for(int i = 0; i < _countOutput; i++)
-        _output[i].setValue(0.0);
+        _output[i]->setValue(0.0);
 }
 
 void Network::setupWeights()
 {
     for(int i = 0; i < _countInput; i++)
     {
-        _input[i].initializeWeights(_countHidden);
+        _input[i]->initializeWeights(_countHidden);
     }
     for(int i = 0; i < _countHidden; i++)
     {
-        _hidden[i].initializeWeights(_countOutput);
+        _hidden[i]->initializeWeights(_countOutput);
     }
 }
 
@@ -178,22 +200,22 @@ void Network::setupDeltas()
 {
     for(int i = 0; i < _countInput; i++)
     {
-        _input[i].initializeDeltas(_countHidden);
+        _input[i]->initializeDeltas(_countHidden);
     }
     for(int i = 0; i < _countHidden; i++)
     {
-        _hidden[i].initializeDeltas(_countOutput);
+        _hidden[i]->initializeDeltas(_countOutput);
     }
 }
 
 void Network::setupErrorGradients()
 {
-    _hiddenErrorGradient = new (double[_countHidden + 1]);
+    _hiddenErrorGradient = std::vector<double>(_countHidden + 1);
     for(int i = 0; i <= _countHidden; i++)
     {
         _hiddenErrorGradient[i] = 0;
     }
-    _outputErrorGradient = new (double[_countOutput + 1]);
+    _outputErrorGradient = std::vector<double>(_countOutput + 1);
     for(int i = 0; i <= _countOutput; i++)
     {
         _outputErrorGradient[i] = 0;
@@ -215,8 +237,8 @@ void Network::initWeights()
         for(int j = 0; j < _countHidden; j++)
         {
             //Random weights
-            _input[i].setWeight(j, ( (double)std::rand() / (RAND_MAX + 1) - 0.5) ) ;
-            _input[i].setDelta(j, 0.0);
+            _input[i]->setWeight(j, ( (double)std::rand() / (RAND_MAX + 1) - 0.5) ) ;
+            _input[i]->setDelta(j, 0.0);
         }
     }
 
@@ -226,8 +248,8 @@ void Network::initWeights()
         for(int j = 0; j < _countOutput; j++)
         {
             //Random weights
-            _hidden[i].setWeight(j, ( (double)std::rand() / (RAND_MAX + 1) - 0.5) ) ;
-            _hidden[i].setDelta(j, 0.0);
+            _hidden[i]->setWeight(j, ( (double)std::rand() / (RAND_MAX + 1) - 0.5) ) ;
+            _hidden[i]->setDelta(j, 0.0);
         }
     }
 }
@@ -258,11 +280,11 @@ void Network::runTrainingEpoch(const std::vector<DataEntry*> &set)
         for(int j = 0; j < _countOutput; j++)
         {
             //Checks if the output value matches the target
-            if(roundOutput(_output[j].getValue() ) != set[i]->_target[j] )
+            if(roundOutput(_output[j]->getValue() ) != set[i]->_target[j] )
                 patternCorrect = false;
 
             //Calculates mean square error
-            meanSquaredError += std::pow((_output[j].getValue() - set[i]->_target[j]), 2);
+            meanSquaredError += std::pow((_output[j]->getValue() - set[i]->_target[j]), 2);
         }
 
         //If pattern does not match, add to sum of incorrect.
@@ -286,38 +308,38 @@ void Network::runTrainingEpoch(const std::vector<DataEntry*> &set)
  *
  *  Feeds the input forward for an output
  */
-void Network::feedForward(double* input)
+void Network::feedForward(std::vector<double> input)
 {
     //Sets input neurons to input values
     for(int i = 0; i < _countInput; i++)
     {
-        _input[i].setValue(input[i]);
+        _input[i]->setValue(input[i]);
     }
 
     //Calculates the hidden layer
     for(int i = 0; i < _countHidden; i++)
     {
         //Resets value
-        _hidden[i].setValue(0.0);
+        _hidden[i]->setValue(0.0);
 
         for(int j = 0; j <= _countInput; j++)
         {
-            _hidden[i].addToValue(_input[i].getValue() * _input[j].getWeight(i));
+            _hidden[i]->addToValue(_input[i]->getValue() * _input[j]->getWeight(i));
         }
-        _hidden[i].setValue(activationFunction(_hidden[i].getValue()));
+        _hidden[i]->setValue(activationFunction(_hidden[i]->getValue()));
     }
 
     //Calculates the output layer
     for(int i = 0; i <= _countOutput; i++)
     {
         //Resets value
-        _output[i].setValue(0.0);
+        _output[i]->setValue(0.0);
 
         for(int j = 0; j < _countHidden; j++)
         {
-            _output[i].addToValue(_hidden[i].getValue() * _hidden[j].getWeight(i));
+            _output[i]->addToValue(_hidden[i]->getValue() * _hidden[j]->getWeight(i));
         }
-        _output[i].setValue(activationFunction(_output[i].getValue()));
+        _output[i]->setValue(activationFunction(_output[i]->getValue()));
     }
 
 }
@@ -328,22 +350,22 @@ void Network::feedForward(double* input)
  *
  *  Feeds backwards, back probagates, adjust deltas and calculate the error gradients.
  */
-void Network::feedBackward(double* targets)
+void Network::feedBackward(std::vector<double> targets)
 {
     //Modify deltas between hidden and output
     for(int i = 0; i < _countOutput; i++)
     {
-        _outputErrorGradient[i] = calculateOutputErrorGradient(targets[i], _output[i].getValue());
+        _outputErrorGradient[i] = calculateOutputErrorGradient(targets[i], _output[i]->getValue());
 
-        for(int j = 0; j <= _countHidden; j++)
+        for(int j = 0; j < _countHidden; j++)
         {
             if(!_useBatch)
             {
-                _hidden[j].setDelta(i, _learningRate * _hidden[i].getValue() * _outputErrorGradient[i] + _momentum * _hidden[i].getDelta(i));
+                _hidden[j]->setDelta(i, _learningRate * _hidden[i]->getValue() * _outputErrorGradient[i] + _momentum * _hidden[i]->getDelta(i));
             }
             else
             {
-                _hidden[j].addToDelta(i, _learningRate * _hidden[j].getValue() * _outputErrorGradient[i]);
+                _hidden[j]->addToDelta(i, _learningRate * _hidden[j]->getValue() * _outputErrorGradient[i]);
             }
         }
     }
@@ -352,15 +374,15 @@ void Network::feedBackward(double* targets)
     {
         _hiddenErrorGradient[i] = calculateHiddenErrorGradient(i);
 
-        for(int j = 0; j <= _countInput; j++)
+        for(int j = 0; j < _countInput; j++)
         {
             if(!_useBatch)
             {
-                _input[j].setDelta(i, _learningRate * _input[i].getValue() * _hiddenErrorGradient[i] + _momentum * _input[i].getDelta(i));
+                _input[j]->setDelta(i, _learningRate * _input[i]->getValue() * _hiddenErrorGradient[i] + _momentum * _input[i]->getDelta(i));
             }
             else
             {
-                _input[j].addToDelta(i, _learningRate * _input[j].getValue() * _hiddenErrorGradient[i]);
+                _input[j]->addToDelta(i, _learningRate * _input[j]->getValue() * _hiddenErrorGradient[i]);
             }
         }
     }
@@ -380,31 +402,31 @@ void Network::feedBackward(double* targets)
 void Network::updateWeights()
 {
     //Input to hidden weights
-    for(int i = 0; i <= _countInput; i++)
+    for(int i = 0; i < _countInput; i++)
     {
         for(int j = 0; j < _countHidden; i++)
         {
-            _input[i].addToWeight(j, _input[i].getDelta(j));
+            _input[i]->addToWeight(j, _input[i]->getDelta(j));
 
             //Clear delta if batch is being used
             if(_useBatch)
             {
-                _input[i].setDelta(j, 0.0);
+                _input[i]->setDelta(j, 0.0);
             }
         }
     }
 
     //Hidden to output weights
-    for(int i = 0; i <= _countHidden; i++)
+    for(int i = 0; i < _countHidden; i++)
     {
         for(int j = 0; j < _countOutput; i++)
         {
-            _hidden[i].addToWeight(j, _hidden[i].getDelta(j));
+            _hidden[i]->addToWeight(j, _hidden[i]->getDelta(j));
 
             //Clear delta if batch is being used
             if(_useBatch)
             {
-                _hidden[i].setDelta(j, 0.0);
+                _hidden[i]->setDelta(j, 0.0);
             }
         }
     }
@@ -443,10 +465,10 @@ double Network::calculateHiddenErrorGradient(int index)
 
     for(int i = 0; i < _countOutput; i++)
     {
-        weightSum += _hidden[index].getWeight(i) * _outputErrorGradient[i];
+        weightSum += _hidden[index]->getWeight(i) * _outputErrorGradient[i];
     }
 
-    return _hidden[index].getValue() * (1 - _hidden[index].getValue()) * weightSum;
+    return _hidden[index]->getValue() * (1 - _hidden[index]->getValue()) * weightSum;
 }
 
 /**
@@ -486,7 +508,7 @@ double Network::getSetAccuracy(const std::vector<DataEntry *> &set)
 
         for(int j = 0; j < _countOutput; j++)
         {
-            if(roundOutput( _output[j].getValue() ) != set[i]->_target[j] )
+            if(roundOutput( _output[j]->getValue() ) != set[i]->_target[j] )
                 isCorrect = false;
         }
         if(!isCorrect)
@@ -512,7 +534,7 @@ double Network::getSetMSE(const std::vector<DataEntry *> &set)
 
         for(int j = 0; j < _countOutput; j++)
         {
-            mse += std::pow( (_output[j].getValue() - set[i]->_target[j]), 2 );
+            mse += std::pow( (_output[j]->getValue() - set[i]->_target[j]), 2 );
         }
     }
 

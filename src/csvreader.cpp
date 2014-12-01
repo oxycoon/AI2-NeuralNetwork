@@ -94,7 +94,7 @@ bool CSVReader::readCSVFile(const char *path, int numberInput, int numberOutput,
         //splits data
         _trainingDataEnd = (int) (0.6 * _data.size());
         int testSize = (int)(ceil(0.2 * _data.size()));
-        int validSize = (int)(_data.size() - _trainingDataEnd - testSize);
+        //int validSize = (int)(_data.size() - _trainingDataEnd - testSize);
 
         //Create training set
         for(int i = 0; i < _trainingDataEnd; i++)
@@ -148,8 +148,8 @@ void CSVReader::clearData()
  */
 void CSVReader::readLine(const std::string &line)
 {
-    double* pattern = new double[_numberInput];
-    double* target = new double[_numberOutput];
+    std::vector<double> pattern(_numberInput);
+    std::vector<double> target(_numberOutput);
 
     char* cstr = new char[line.size() + 1];
     char* token;

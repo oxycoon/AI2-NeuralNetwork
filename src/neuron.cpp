@@ -6,6 +6,7 @@ Neuron::Neuron()
 
 Neuron::~Neuron()
 {
+
     _deltaCount = 0;
     _weightCount = 0;
 }
@@ -31,12 +32,7 @@ void Neuron::setValue(double val)
  */
 bool Neuron::setWeight(unsigned int index, double weight)
 {
-    if(_weightCount == 1)
-    {
-        _weights = &weight;
-        return true;
-    }
-    else if(index < _weightCount)
+    if(index < _weightCount)
     {
         _weights[index] = weight;
         return true;
@@ -55,12 +51,6 @@ bool Neuron::setWeight(unsigned int index, double weight)
  */
 bool Neuron::setDelta(unsigned int index, double delta)
 {
-    //If there's only one delta, set to input
-    if(_deltaCount == 1)
-    {
-        _deltas = &delta;
-        return true;
-    }
     //Else set delta at index to input
     if(index < _deltaCount)
     {
@@ -78,7 +68,7 @@ bool Neuron::setDelta(unsigned int index, double delta)
  *
  *  Gets the array of weights
  */
-double *Neuron::getWeights() const
+std::vector<double> Neuron::getWeights() const
 {
     return _weights;
 }
@@ -96,7 +86,7 @@ double Neuron::getWeight(unsigned int index) const
         return 0.0;
 }
 
-double *Neuron::getDeltas() const
+std::vector<double> Neuron::getDeltas() const
 {
     return _deltas;
 }
@@ -159,7 +149,7 @@ bool Neuron::addToWeight(unsigned int index, double val)
 void Neuron::initializeWeights(int weights)
 {
     _weightCount = weights;
-    _weights = new (double[_weightCount]);
+    _weights = std::vector<double>(weights);
 
     for(int i = 0; i < weights; i++)
     {
@@ -171,17 +161,10 @@ void Neuron::initializeDeltas(int deltas)
 {
     _deltaCount = deltas;
 
-    if(_deltaCount == 1)
+    _deltas = std::vector<double>(deltas);
+    for(int i = 0; i < _deltaCount; i++)
     {
-        double delta = 0.0;
-        _deltas = &delta;
+        _deltas[i] = 0.0;
     }
-    else
-    {
-        _deltas = new (double[_deltaCount]);
-        for(int i = 0; i < _deltaCount; i++)
-        {
-            _deltas[i] = 0.0;
-        }
-    }
+
 }

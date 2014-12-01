@@ -1,7 +1,7 @@
 #ifndef NEURON_H
 #define NEURON_H
 
-//#include <vector>
+#include <vector>
 
 class Neuron
 {
@@ -13,9 +13,9 @@ public:
     bool setWeight(unsigned int index, double weight);
     bool setDelta(unsigned int index, double delta);
 
-    double* getWeights() const;
+    std::vector<double> getWeights() const;
     double getWeight(unsigned int index) const;
-    double* getDeltas() const;
+    std::vector<double> getDeltas() const;
     double getDelta(unsigned int index) const;
     double getValue() const;
 
@@ -43,7 +43,7 @@ private:
      *  Input neurons hold weights towards the hidden layer.
      *  Hidden neurons hold weights towards the output layer.
      */
-    double* _weights;
+    std::vector<double> _weights;
 
     /**
      * @brief _deltas
@@ -51,7 +51,7 @@ private:
      *  Input neurons hold deltas towards the hidden layer.
      *  Hidden neurons hold deltas towards the output layer.
      */
-    double* _deltas;
+    std::vector<double> _deltas;
 
     /**
      * @brief _weightCount

@@ -1,12 +1,12 @@
 #include "dataentry.h"
 
-DataEntry::DataEntry(double *p, double *t): _pattern(p), _target(t)
+DataEntry::DataEntry(std::vector<double> p, std::vector<double> t): _pattern(p), _target(t)
 {
 
 }
 
 DataEntry::~DataEntry()
 {
-    delete[] _pattern;
-    delete[] _target;
+    _pattern.clear();
+    _target.clear();
 }
