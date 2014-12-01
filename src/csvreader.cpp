@@ -71,6 +71,8 @@ bool CSVReader::readCSVFile(const char *path, int numberInput, int numberOutput,
     _numberOutput = numberOutput;
     _separator = separator;
 
+    _numberDataSet = 1;
+
     std::fstream file;
     file.open(path, std::ios::in);
 
@@ -93,6 +95,12 @@ bool CSVReader::readCSVFile(const char *path, int numberInput, int numberOutput,
         _trainingDataEnd = (int) (0.6 * _data.size());
         int testSize = (int)(ceil(0.2 * _data.size()));
         int validSize = (int)(_data.size() - _trainingDataEnd - testSize);
+
+        //Create training set
+        for(int i = 0; i < _trainingDataEnd; i++)
+        {
+            _dataSet._trainingSet.push_back(_data[i]);
+        }
 
         //Create testing set
         for(int i = _trainingDataEnd; i < _trainingDataEnd + testSize; i++)

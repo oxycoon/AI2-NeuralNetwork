@@ -8,7 +8,9 @@
 //              Constructor/Destructor
 //================================================
 
-Network::Network(int in, int hidden, int out): _countInput(in), _countHidden(hidden), _countOutput(out)
+Network::Network(int in, int hidden, int out): _countInput(in), _countHidden(hidden), _countOutput(out),
+    _trainingSetAccuracy(0), _testingSetAccuracy(0), _validationSetAccuracy(0),
+    _trainingSetError(0), _testingSetError(0), _validationSetError(0), _epoch(0)
 {
     setupNeurons();
     setupWeights();
@@ -90,10 +92,10 @@ void Network::resetNetwork()
  */
 void Network::runTraining(const std::vector<DataEntry*> &trainingSet, const std::vector<DataEntry*> &testSet, const std::vector<DataEntry*> &validationSet)
 {
-    std::cout << " Neural network training starting " << std::endl
+    std::cout << "Neural network training starting " << std::endl
               << "======================================================================" << std::endl
               << "Learning rate: " << _learningRate << ", Momentum: " << _momentum << ", Max epochs: " << _maxEpochs << std::endl
-              << "Input: " << _countInput << ", Hidden: " << _countHidden << ", Output" << _countOutput << std::endl
+              << "Input: " << _countInput << ", Hidden: " << _countHidden << ", Output: " << _countOutput << std::endl
               << "======================================================================" << std::endl;
 
     _epoch = 0;
@@ -101,6 +103,8 @@ void Network::runTraining(const std::vector<DataEntry*> &trainingSet, const std:
     //Runs training using training set for training and generalized set for testing
     while((_trainingSetAccuracy < _targetAccuracy || _testingSetAccuracy < _targetAccuracy) && _epoch < _maxEpochs)
     {
+        //std::cout << "New epoch, epoch #" << _epoch << std::endl;
+
         double oldTrA = _trainingSetAccuracy;
         double oldTSA = _testingSetAccuracy;
         double oldTSMSE = _testingSetError;

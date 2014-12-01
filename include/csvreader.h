@@ -9,6 +9,8 @@
 
 /**
  * @brief The DataSet class
+ *
+ *  Container class for the data sets.
  */
 class DataSet{
 public:
@@ -25,7 +27,11 @@ public:
 /**
  * @brief The CSVReader class
  *
- *  Class to read a CSV file with patterns and targets.
+ *  Class to read a CSV file with patterns and targets. .csv file format:
+ *
+ *      Input values | Result values
+ *
+ *  Specify the amount of input values, output values and the seperator in constructor.
  */
 class CSVReader
 {
