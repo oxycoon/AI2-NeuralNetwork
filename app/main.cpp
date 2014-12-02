@@ -14,7 +14,7 @@ int main()
     CSVReader reader;
     reader.readCSVFile("../res/trainingset.csv", 7, 1, ";");
 
-    Network nn(7, 12, 1);
+    Network nn(7, 8, 5);
     nn.setLearningParameters(0.01, 0.8);
     nn.setTargetAccuracy(90.0);
     nn.setMaxEpochs(500);
@@ -29,7 +29,7 @@ int main()
 
     std::cout << " -- END OF NETWORK -- " << std::endl;
 
-    char c; std::cin >> c;
+    //char c; std::cin >> c;
 
     return 0;
 }

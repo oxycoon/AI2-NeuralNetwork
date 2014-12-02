@@ -149,7 +149,9 @@ void CSVReader::clearData()
 void CSVReader::readLine(const std::string &line)
 {
     std::vector<double> pattern(_numberInput);
-    std::vector<double> target(_numberOutput);
+    //std::vector<double> target(_numberOutput);
+    std::vector<double> target(5);  // Spesific for this task, hack to make
+                                    // system work
 
     char* cstr = new char[line.size() + 1];
     char* token;
@@ -164,7 +166,8 @@ void CSVReader::readLine(const std::string &line)
         if(i < _numberInput)
             pattern[i] = std::atof(token);
         else
-            target[i - _numberInput] = std::atof(token);
+            //target[i - _numberInput] = std::atof(token);
+            target[std::atof(token)] = 1.0;
 
         //Move forward
         token = std::strtok(NULL, _separator);

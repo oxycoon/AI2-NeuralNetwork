@@ -138,12 +138,12 @@ void Network::runTraining(const std::vector<DataEntry*> &trainingSet, const std:
         _testingSetError = getSetMSE(testSet);
 
         //Checks for changes in the training and generalization set's accuracy, prints if there's a change
-        if(std::ceil(oldTrA) != std::ceil(_trainingSetAccuracy) || std::ceil(oldTSA) != std::ceil(_testingSetAccuracy) )
-        {
+        //if(std::ceil(oldTrA) != std::ceil(_trainingSetAccuracy) || std::ceil(oldTSA) != std::ceil(_testingSetAccuracy) )
+        //{
             std::cout << "Epoch: " << _epoch;
             std::cout << " | Training set accuracy: " << _trainingSetAccuracy << "%, MSE: " << _trainingSetError;
             std::cout << " | Generalized set accuracy: " << _testingSetAccuracy << "%, MSE: " << _testingSetError << std::endl;
-        }
+        //}
         //Increases epoch for next iteration.
         _epoch++;
 
@@ -151,11 +151,16 @@ void Network::runTraining(const std::vector<DataEntry*> &trainingSet, const std:
         /*if(oldTSMSE < _testingSetError)
             break;*/
     }
+    //std::cout << "Epochs ran: " << _epoch << std::endl;
 
     //Run validation set
     _validationSetAccuracy = getSetAccuracy(validationSet);
     _validationSetError = getSetMSE(validationSet);
 
+    std::cout << std::endl << "Training Complete!!! - > Elapsed Epochs: " << _epoch << std::endl;
+    std::cout << " Validation Set Accuracy: " << _validationSetAccuracy << std::endl;
+    std::cout << " Validation Set MSE: " << _validationSetError << std::endl << std::endl;
+    std::cout << "Closing system." << std::endl;
 }
 
 //================================================
@@ -246,7 +251,8 @@ void Network::initWeights()
         for(int j = 0; j < _countHidden; j++)
         {
             //Random weights
-            _input[i]->setWeight(j, ( (double)std::rand() / (RAND_MAX + 1) - 0.5) ) ;
+            double random = (double)std::rand() / (RAND_MAX);
+            _input[i]->setWeight(j, ( random - 0.5) ) ;
             _input[i]->setDelta(j, 0.0);
         }
     }
@@ -257,7 +263,7 @@ void Network::initWeights()
         for(int j = 0; j < _countOutput; j++)
         {
             //Random weights
-            _hidden[i]->setWeight(j, ( (double)std::rand() / (RAND_MAX + 1) - 0.5) ) ;
+            _hidden[i]->setWeight(j, ( (double)std::rand() / (RAND_MAX + 1) + 0.5) ) ;
             _hidden[i]->setDelta(j, 0.0);
         }
     }
@@ -289,6 +295,8 @@ void Network::runTrainingEpoch(const std::vector<DataEntry*> &set)
         for(int j = 0; j < _countOutput; j++)
         {
             //Checks if the output value matches the target
+            //std::cout << "Target: " << set[i]->_target[j] << " | Actual: " << _output[j]->getValue() << std::endl;
+
             if(roundOutput(_output[j]->getValue() ) != set[i]->_target[j] )
                 patternCorrect = false;
 
@@ -347,7 +355,7 @@ void Network::feedForward(std::vector<double> input)
         _output[i]->setValue(0.0);
 
         //Calculate weighted sum of inputs, including bias neuron
-        for(int j = 0; j < _countHidden; j++)
+        for(int j = 0; j <= _countHidden; j++)
         {
             _output[i]->addToValue(_hidden[j]->getValue() * _hidden[j]->getWeight(i));
         }
@@ -359,9 +367,9 @@ void Network::feedForward(std::vector<double> input)
 
 /**
  * @brief Network::feedBackward
- * @param targets
+ * @param targets The desired values for the training sets.
  *
- *  Feeds backwards, back probagates, adjust deltas and calculate the error gradients.
+ *  Feeds backwards, adjust deltas and calculate the error gradients.
  */
 void Network::feedBackward(std::vector<double> targets)
 {
@@ -374,11 +382,13 @@ void Network::feedBackward(std::vector<double> targets)
         {
             if(!_useBatch)
             {
-                _hidden[j]->setDelta(i, _learningRate * _hidden[j]->getValue() * _outputErrorGradient[i] + _momentum * _hidden[j]->getDelta(i));
+                _hidden[j]->setDelta(i, _learningRate * _hidden[j]->getValue() *
+                                     _outputErrorGradient[i] + _momentum * _hidden[j]->getDelta(i));
             }
             else
             {
-                _hidden[j]->addToDelta(i, _learningRate * _hidden[j]->getValue() * _outputErrorGradient[i]);
+                _hidden[j]->addToDelta(i, _learningRate * _hidden[j]->getValue() *
+                                       _outputErrorGradient[i]);
             }
         }
     }
@@ -391,11 +401,13 @@ void Network::feedBackward(std::vector<double> targets)
         {
             if(!_useBatch)
             {
-                _input[j]->setDelta(i, _learningRate * _input[j]->getValue() * _hiddenErrorGradient[i] + _momentum * _input[j]->getDelta(i));
+                _input[j]->setDelta(i, _learningRate * _input[j]->getValue() *
+                                    _hiddenErrorGradient[i] + _momentum * _input[j]->getDelta(i));
             }
             else
             {
-                _input[j]->addToDelta(i, _learningRate * _input[j]->getValue() * _hiddenErrorGradient[i]);
+                _input[j]->addToDelta(i, _learningRate * _input[j]->getValue() *
+                                      _hiddenErrorGradient[i]);
             }
         }
     }
@@ -449,6 +461,7 @@ double Network::activationFunction(double x)
 {
     //Sigmoid function
     return 1 / (1 + std::exp(-x));
+    //return x;
 }
 
 /**
@@ -493,9 +506,18 @@ double Network::calculateHiddenErrorGradient(int index)
  */
 int Network::roundOutput(double output)
 {
-    if(output < 0.1) return 0;
+    /*if(output < 0.1) return 0;
     else if(output > 0.9) return 1;
-    else return -1;
+    else return -1;*/
+    //std::cout << output << std::endl;
+
+    if(output < 0.1) return 0; //empty classroom
+    else if(output > 0.9 && output < 1.1) return 1;// one person
+    else if(output > 1.9 && output < 2.1) return 2;// group
+    else if(output > 2.9 && output < 3.1) return 3;// class
+    else if(output > 3.9 && output < 4.1) return 4;// lecture
+    else return -1; //unknown
+
 }
 
 //================================================
