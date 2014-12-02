@@ -115,7 +115,8 @@ void Network::runTraining(const std::vector<DataEntry*> &trainingSet, const std:
 {
     std::cout << "Neural network training starting " << std::endl
               << "======================================================================" << std::endl
-              << "Learning rate: " << _learningRate << ", Momentum: " << _momentum << ", Max epochs: " << _maxEpochs << std::endl
+              << "Learning rate: " << _learningRate << ", Momentum: " << _momentum << ", Max epochs: " << _maxEpochs
+                    << ", Target accuracy: " << _targetAccuracy << "%" << std::endl
               << "Input: " << _countInput << ", Hidden: " << _countHidden << ", Output: " << _countOutput << std::endl
               << "======================================================================" << std::endl;
 
@@ -128,7 +129,7 @@ void Network::runTraining(const std::vector<DataEntry*> &trainingSet, const std:
 
         double oldTrA = _trainingSetAccuracy;
         double oldTSA = _testingSetAccuracy;
-        //double oldTSMSE = _testingSetError;
+        double oldTSMSE = _testingSetError;
 
         //Train the network with the training set
         runTrainingEpoch(trainingSet);
@@ -138,18 +139,21 @@ void Network::runTraining(const std::vector<DataEntry*> &trainingSet, const std:
         _testingSetError = getSetMSE(testSet);
 
         //Checks for changes in the training and generalization set's accuracy, prints if there's a change
-        //if(std::ceil(oldTrA) != std::ceil(_trainingSetAccuracy) || std::ceil(oldTSA) != std::ceil(_testingSetAccuracy) )
-        //{
+        if(std::ceil(oldTrA) != std::ceil(_trainingSetAccuracy) || std::ceil(oldTSA) != std::ceil(_testingSetAccuracy) )
+        {
             std::cout << "Epoch: " << _epoch;
             std::cout << " | Training set accuracy: " << _trainingSetAccuracy << "%, MSE: " << _trainingSetError;
             std::cout << " | Generalized set accuracy: " << _testingSetAccuracy << "%, MSE: " << _testingSetError << std::endl;
-        //}
+        }
         //Increases epoch for next iteration.
         _epoch++;
 
         //Stops the training set if the generalization set's error starts increasing.
-        /*if(oldTSMSE < _testingSetError)
-            break;*/
+        if(oldTSMSE < _testingSetError)
+        {
+            std::cout << "TESTING SET ERROR INCREASING! STOPPING!" << std::endl;
+            break;
+        }
     }
     //std::cout << "Epochs ran: " << _epoch << std::endl;
 

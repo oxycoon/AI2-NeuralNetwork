@@ -16,7 +16,7 @@ int main()
 
     Network nn(7, 8, 5);
     nn.setLearningParameters(0.01, 0.8);
-    nn.setTargetAccuracy(90.0);
+    nn.setTargetAccuracy(95.0);
     nn.setMaxEpochs(500);
 
     DataSet* set;
