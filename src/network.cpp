@@ -149,11 +149,11 @@ void Network::runTraining(const std::vector<DataEntry*> &trainingSet, const std:
         _epoch++;
 
         //Stops the training set if the generalization set's error starts increasing.
-        if(oldTSMSE < _testingSetError)
+        /*if(oldTSMSE < _testingSetError)
         {
             std::cout << "TESTING SET ERROR INCREASING! STOPPING!" << std::endl;
             break;
-        }
+        }*/
     }
     //std::cout << "Epochs ran: " << _epoch << std::endl;
 
@@ -299,18 +299,24 @@ void Network::runTrainingEpoch(const std::vector<DataEntry*> &set)
         for(int j = 0; j < _countOutput; j++)
         {
             //Checks if the output value matches the target
-            //std::cout << "Target: " << set[i]->_target[j] << " | Actual: " << _output[j]->getValue() << std::endl;
+            std::cout << "Training set #" << i << ", output #" << j <<" - Target: " << set[i]->_target[j] << " | Rounded: " << roundOutput(_output[j]->getValue()) <<
+                         "| Pure: " << _output[j]->getValue() << std::endl;
 
             if(roundOutput(_output[j]->getValue() ) != set[i]->_target[j] )
+            {
                 patternCorrect = false;
+            }
 
             //Calculates mean square error
             meanSquaredError += std::pow((_output[j]->getValue() - set[i]->_target[j]), 2);
         }
+        std::cout << std::endl;
 
         //If pattern does not match, add to sum of incorrect.
         if(!patternCorrect)
+        {
             incorrectPatterns++;
+        }
     }
     //Updates weights here if batch learning is used.
     if(_useBatch)
@@ -510,17 +516,17 @@ double Network::calculateHiddenErrorGradient(int index)
  */
 int Network::roundOutput(double output)
 {
-    /*if(output < 0.1) return 0;
+    if(output < 0.1) return 0;
     else if(output > 0.9) return 1;
-    else return -1;*/
+    else return -1;
     //std::cout << output << std::endl;
 
-    if(output < 0.1) return 0; //empty classroom
-    else if(output > 0.9 && output < 1.1) return 1;// one person
-    else if(output > 1.9 && output < 2.1) return 2;// group
-    else if(output > 2.9 && output < 3.1) return 3;// class
-    else if(output > 3.9 && output < 4.1) return 4;// lecture
-    else return -1; //unknown
+    /*if(output < 0.05) return 0; //empty classroom
+    else if(output > 0.20 && output < 0.25) return 1;// one person
+    else if(output > 0.40 && output < 0.45) return 2;// group
+    else if(output > 0.60 && output < 0.5) return 3;// class
+    else if(output > 0.95) return 4;// lecture
+    else return -1; //unknown*/
 
 }
 

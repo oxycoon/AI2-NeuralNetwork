@@ -12,12 +12,12 @@ int main()
     std::cout << "NEURAL NETWORK" << std::endl;
 
     CSVReader reader;
-    reader.readCSVFile("../res/trainingset.csv", 7, 1, ";");
+    reader.readCSVFile("../res/trainingset.csv", 7, 5, ",");
 
-    Network nn(7, 8, 5);
+    Network nn(7, 21, 5);
     nn.setLearningParameters(0.01, 0.8);
     nn.setTargetAccuracy(95.0);
-    nn.setMaxEpochs(500);
+    nn.setMaxEpochs(100);
 
     DataSet* set;
 

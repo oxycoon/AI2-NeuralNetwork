@@ -85,7 +85,16 @@ bool CSVReader::readCSVFile(const char *path, int numberInput, int numberOutput,
             std::getline(file, line);
 
             if(line.length() > 2)
-                readLine(line);
+            {
+                if(line.at(0) == '#') //Checks if the line is a comment.
+                {
+                    continue;
+                }
+                else
+                {
+                    readLine(line);
+                }
+            }
         }
 
         //shuffles the given data
@@ -149,8 +158,8 @@ void CSVReader::clearData()
 void CSVReader::readLine(const std::string &line)
 {
     std::vector<double> pattern(_numberInput);
-    //std::vector<double> target(_numberOutput);
-    std::vector<double> target(5);  // Spesific for this task, hack to make
+    std::vector<double> target(_numberOutput);
+    //std::vector<double> target(5);  // Spesific for this task, hack to make
                                     // system work
 
     char* cstr = new char[line.size() + 1];
@@ -164,10 +173,14 @@ void CSVReader::readLine(const std::string &line)
     while(token != NULL && i < (_numberInput + _numberOutput))
     {
         if(i < _numberInput)
+        {
             pattern[i] = std::atof(token);
+        }
         else
-            //target[i - _numberInput] = std::atof(token);
-            target[std::atof(token)] = 1.0;
+        {
+            target[i - _numberInput] = std::atof(token);
+            //target[std::atof(token)] = 1.0;
+        }
 
         //Move forward
         token = std::strtok(NULL, _separator);
@@ -175,18 +188,18 @@ void CSVReader::readLine(const std::string &line)
     }
 
     //PRINT FOR DEBUGGING
-    /*std::cout << "pattern: ";
+    std::cout << "pattern: [";
     for (int i=0; i < _numberInput; i++)
     {
         std::cout << pattern[i] << ",";
     }
 
-    std::cout << " target: ";
-    for (int i=0; i < _numberOutput; i++)
+    std::cout << "] target: [";
+    for (int i = 0; i < _numberOutput; i++)
     {
-        std::cout << target[i] << " ";
+        std::cout << target[i] << ",";
     }
-    std::cout << std::endl;*/
+    std::cout << "]" << std::endl;
 
 
     _data.push_back(new DataEntry(pattern, target));
